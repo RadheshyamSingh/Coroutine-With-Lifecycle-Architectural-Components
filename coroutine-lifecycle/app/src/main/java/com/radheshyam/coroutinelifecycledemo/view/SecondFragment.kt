@@ -2,6 +2,7 @@ package com.radheshyam.coroutinelifecycledemo.view
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.os.Handler
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.radheshyam.coroutinelifecycledemo.R
-import com.radheshyam.coroutinelifecycledemo.model.Employee
 import com.radheshyam.coroutinelivedatasample.viewmodel.SecondViewModel
 import kotlinx.coroutines.*
 
@@ -39,16 +40,20 @@ class SecondFragment : Fragment(), LifecycleOwner {
             (activity as MainActivity).onBackPressed()
         }
         loadButton.setOnClickListener {
-            //CoroutineScope(Dispatchers.Main).launch {
+
+            // this will run the showSnackBar on Main dispatcher and will lead to crash
+            // if we press back after clicking on load button and before 2 sec.
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(2000)
+                showSnackBar(view)
+            }
+
+            // Here since showSnackBar is tied with lifeCycleScope of fragment's view
+            // so this task will get cancelled once back is pressed in between
+            // load button click and 2 second after click
             viewLifecycleOwner.lifecycleScope.launch {
-                var emps: List<Employee>? = null
-                withContext(Dispatchers.IO) {
-                    emps = viewModel.loadEmployee()
-                }
-                dataText.text = emps?.toString()
-                val size = emps?.size ?: 0
-                val mulSize = size * 10
-                println("Radhe In main scope before $mulSize")
+                delay(2000)
+                showSnackBar(view)
             }
         }
         return view
@@ -59,5 +64,10 @@ class SecondFragment : Fragment(), LifecycleOwner {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(SecondViewModel::class.java)
         // TODO: Use the ViewModel
+    }
+
+    private fun showSnackBar(view: View) {
+        val snackbar = Snackbar.make(view, "This is main activity", Snackbar.LENGTH_LONG)
+        snackbar.show()
     }
 }

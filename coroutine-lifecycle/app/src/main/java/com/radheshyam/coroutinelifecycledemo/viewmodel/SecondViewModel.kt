@@ -5,13 +5,4 @@ import com.radheshyam.coroutinelifecycledemo.model.Employee
 import com.radheshyam.coroutinelifecycledemo.repository.EmployeeRepository
 
 class SecondViewModel : BaseViewModel() {
-    private val repository: EmployeeRepository
-
-    var employee: MutableLiveData<List<Employee>> = MutableLiveData()
-
-    init {
-        repository = EmployeeRepository()
-    }
-
-    suspend fun loadEmployee() = repository.getEmployees()
 }
