@@ -26,7 +26,7 @@ class MainActivityViewModel : BaseViewModel() {
     fun loadEmployee() {
         viewModelScope.launch {
             var emps: List<Employee>? = null
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
                 emps = repository.getEmployees()
             }
             // here Some other operations like file read etc
